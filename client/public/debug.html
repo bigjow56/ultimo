@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Netlify Function - RM GYM</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .result { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .error { background: #ffebee; }
+        .success { background: #e8f5e9; }
+    </style>
+</head>
+<body>
+    <h1>Teste da Função Netlify</h1>
+    <button onclick="testFunction()">Testar Envio</button>
+    <button onclick="testHealth()">Testar Health</button>
+    <div id="results"></div>
+
+    <script>
+        const results = document.getElementById('results');
+        
+        function log(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = `result ${isError ? 'error' : 'success'}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            results.appendChild(div);
+        }
+
+        async function testHealth() {
+            try {
+                log('🔍 Testando health endpoint...');
+                const response = await fetch('/.netlify/functions/health');
+                const data = await response.json();
+                log(`✅ Health OK: ${JSON.stringify(data)}`);
+            } catch (error) {
+                log(`❌ Erro no health: ${error.message}`, true);
+            }
+        }
+
+        async function testFunction() {
+            const testData = {
+                trainingSchedule: 'manha',
+                experienceLevel: 'intermediario',
+                academyTime: '1-6-meses',
+                receptionService: 'bom',
+                instructorSupport: 'as-vezes',
+                trainingGuidance: 'as-vezes',
+                equipmentAvailability: 'sempre',
+                overallSatisfaction: 'satisfeito',
+                suggestions: 'Teste debug'
+            };
+
+            try {
+                log('🚀 Enviando dados para /.netlify/functions/surveys...');
+                log(`📝 Dados: ${JSON.stringify(testData)}`);
+                
+                const response = await fetch('/.netlify/functions/surveys', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                log(`📊 Status: ${response.status} ${response.statusText}`);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log(`❌ Erro ${response.status}: ${errorText}`, true);
+                    return;
+                }
+
+                const result = await response.json();
+                log(`✅ Sucesso: ${JSON.stringify(result)}`);
+            } catch (error) {
+                log(`❌ Erro: ${error.message}`, true);
+            }
+        }
+
+        // Teste automático ao carregar
+        window.onload = function() {
+            log('Página carregada. Hostname: ' + window.location.hostname);
+            log('URL base: ' + window.location.origin);
+            
+            // Detectar ambiente
+            const isNetlify = window.location.hostname.includes('netlify.app') || 
+                            window.location.hostname.includes('netlify.com');
+            log('Ambiente detectado: ' + (isNetlify ? 'Netlify' : 'Local/Replit'));
+        };
+    </script>
+</body>
+</html>

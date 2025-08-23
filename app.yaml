@@ -1,0 +1,35 @@
+# O nome que sua aplicação terá na DigitalOcean
+name: pesquisa-academia
+
+# Suas chaves secretas (variáveis de ambiente) que serão usadas por todos os componentes
+envs:
+- key: GOOGLE_SHEETS_SPREADSHEET_ID
+  scope: RUN_AND_BUILD_TIME
+  value: "1I3LXmmW5O80zcFXZaHSUC0LMra0QeVXaD5VCiqhlM1s"
+- key: GOOGLE_SERVICE_ACCOUNT_EMAIL
+  scope: RUN_AND_BUILD_TIME
+  value: "n8n-406@sonic-shuttle-467918-g0.iam.gserviceaccount.com"
+- key: GOOGLE_PRIVATE_KEY
+  scope: RUN_AND_BUILD_TIME
+  value: "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCjBOrQVE+Wzkm3\n8xY7Cqhf1ybluEVgbVVkY2FwLEHwsLO7M3SSiLpAn++aJj9qLmpH5rsA5fnbWWYs\ns24/7bZ/FoKRc4UeFbizE9VjC1VJyjFlAJoUua84HtR0vk/dJlSPV++Z6NOIQrKI\nxNcjZ//2Oel2N2u69/sZqOxpB8hefUcE3YI7lMp6eci3DroEuoRZ8fOLZDsX1UbX\n+8t3tSSer555K3mBbbv8px87VK1X0Onzi/bVXyTTP3+0ehSevla7GL7WeNPuKsuI\nZUq4KAL9pmnOIljKBSDpJ6F6RuyUnARbwDMm6hyLntGsr9AXgkY4fqRLFXYSBl1+\n0w0YFQXjAgMBAAECggEAMVnLvEXJ0l2g848jq7wOPPVlUSX32rk+oKV1WgAL9lGI\nF6P8JmA+AlJotsHdcMecZSf0dNEqUr09sUqglbnhBZhK7r2KDxGEWLIoZ1OG/k+3\npFwKSTvtT5AFwVHb25c/AiYc4vsZDqciZUUx3AYf9uqRQriEZJWt7pa0+xbgEbpf\nktZG9TTxN28UWqGYI3YZdFI2c0/yOaYaeLlbLS1epOHg0QNDziU5vY8kh4G8BMdA\nioI8uxH02zrJaTf2fqkbb64MesDKWyujObQ0Awq4ei7oRIVQ5XHmjq0qcfbdiOE8\nOcquDwWs43wJ/sly3w0NqMvY3qK0xCcHY02b1hIwAQKBgQDOzf35gKfpc7prrdQ0\ntWPHlLHqQ8WrJlu76olMggQ9/NXjHYn2OPeIvTWDfweXLy/+OUxttbC6g+uwE67m\najG6rnb8MVEldpyO4EDmbakG3tYMQkp//DYGUE67MquF8ama5qbLiSyyhkFcUhwh\nZ1T8dWpkBREspYojkRKm9aA9swKBgQDJzHmgh8c40KdDT41FqFeaXXX80kW3dUo2\nTCi+DLQNNanC9ZdVo5jIRRwcROQp5N7Jo+piWHjx/CHKNWvNtPegrzGADdx3ml5c\nYaV0GCNgzjPX7YakOfQcPcEKNqk9WXdNCADxMbevrvP+gSOOyPO7B0q7mKeL0AyX\n7/VC/YbfEQKBgQCghBrBci7icMUdlwrC7pfH7Y46uufOdDN3pA91puUMCBcr9V2E\nE6tuIw5KRmrp2eJyfJ7p+MB3xLVHMb/rcDmxIIGSNeU6ItpZu44kTLGJd6TEVx/k\nPyrfs62odyfTC0QNy0FjcdGTr8lDkyfqdX3thmVRxO0TrlmOSagklzoNKQKBgEjR\nqV4dQO2mlYT7ku389ke0zBvEQPYXtATt7JHQAbT2lWDNwKNdmodCMQeecHsRpLc8\nmBqO9G3V3teZ+WHMmML6FTGxTso2ATDy54KCJ1oKbrjPdJOUehsqyZsG6IFD5IH+\njmB64V7bEh7XuN4Qc6sc0YHqbyNLmw/EvktDM0URAoGBAIhAjdX5EwlXWZT9A+vr\nHe59Ym1y3+TRFaq7YThc3zeIORkv8m9Xu188/r7pVUCBMrydZ2rOL8zA7tNwec3I\nPTrordIG+M9uadttsLAB+ngWnnCwVqFJkCK6HNCWdT9VnJ72y42TNR48HfXZpG2A\nD85Sk081XAjKqu6Ic4aNrU5p\n-----END PRIVATE KEY-----"
+- key: DATABASE_URL
+  scope: RUN_AND_BUILD_TIME
+  value: "postgresql://neondb_owner:npg_V5fWPpz2nKxr@ep-misty-sound-adkp6zm0-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require"
+
+# --- Componente ÚNICO: Aplicação Full-Stack ---
+services:
+- name: web-app
+  # Localização do código no GitHub
+  github:
+    repo: bigjow56/Academiarm
+    branch: main
+  # Comandos para construir e iniciar a aplicação completa
+  build_command: npm ci && npx vite build && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+  run_command: npm start
+  # Porta que o servidor usa
+  http_port: 5000
+  # Tipo de ambiente
+  environment_slug: node-js
+  # Todas as rotas vão para este componente
+  routes:
+  - path: /

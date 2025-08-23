@@ -1,0 +1,603 @@
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migração Express.js para Netlify Functions - Academia RM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                        secondary: {
+                            50: '#ecfdf5',
+                            500: '#10b981',
+                            600: '#059669',
+                        },
+                        accent: {
+                            500: '#1f2937',
+                            600: '#111827',
+                            700: '#0f172a',
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- @COMPONENT: Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <!-- Academia RM logo placeholder -->
+                    <div class="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">RM</span>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-semibold text-accent-600">Academia RM</h1>
+                        <p class="text-sm text-gray-500">Migração para Netlify</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-secondary-50 text-secondary-600 px-3 py-1 rounded-full text-sm font-medium">
+                        Em Progresso
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <div class="flex max-w-7xl mx-auto">
+        <!-- @COMPONENT: Sidebar Navigation -->
+        <nav class="w-64 bg-white border-r border-gray-200 min-h-screen p-6 sticky top-16">
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-sm font-semibold text-accent-600 uppercase tracking-wide mb-3">Migração</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#overview" class="block px-3 py-2 rounded-md text-sm text-primary-600 bg-primary-50 font-medium">Visão Geral</a></li>
+                        <li><a href="#architecture" class="block px-3 py-2 rounded-md text-sm text-gray-600 hover:bg-gray-50">Arquitetura</a></li>
+                        <li><a href="#functions" class="block px-3 py-2 rounded-md text-sm text-gray-600 hover:bg-gray-50">Netlify Functions</a></li>
+                        <li><a href="#structure" class="block px-3 py-2 rounded-md text-sm text-gray-600 hover:bg-gray-50">Estrutura de Arquivos</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-accent-600 uppercase tracking-wide mb-3">Configuração</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#environment" class="block px-3 py-2 rounded-md text-sm text-gray-600 hover:bg-gray-50">Variáveis de Ambiente</a></li>
+                        <li><a href="#build" class="block px-3 py-2 rounded-md text-sm text-gray-600 hover:bg-gray-50">Build & Deploy</a></li>
+                        <li><a href="#testing" class="block px-3 py-2 rounded-md text-sm text-gray-600 hover:bg-gray-50">Checklist</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- @END_COMPONENT: Sidebar Navigation -->
+
+        <!-- @COMPONENT: Main Content -->
+        <main class="flex-1 p-8">
+            <!-- @COMPONENT: Overview Section -->
+            <section id="overview" class="mb-12">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-accent-700 mb-4">Migração Express.js para Netlify Functions</h1>
+                    <p class="text-lg text-gray-600 max-w-3xl">
+                        Guia completo para migrar o backend da aplicação de pesquisa de satisfação da Academia RM 
+                        de Express.js para Netlify Functions, mantendo toda a funcionalidade existente.
+                    </p>
+                </div>
+
+                <!-- Status Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-accent-600">Frontend</h3>
+                            <span class="w-3 h-3 bg-secondary-500 rounded-full"></span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">React + shadcn/ui</p>
+                        <p class="text-xs text-secondary-600 font-medium">Sem alterações necessárias</p>
+                    </div>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-accent-600">Backend</h3>
+                            <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">Express.js → Netlify Functions</p>
+                        <p class="text-xs text-yellow-600 font-medium">Migração necessária</p>
+                    </div>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-accent-600">Database</h3>
+                            <span class="w-3 h-3 bg-secondary-500 rounded-full"></span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">Neon PostgreSQL + Google Sheets</p>
+                        <p class="text-xs text-secondary-600 font-medium">Mantém configuração atual</p>
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: Overview Section -->
+
+            <!-- @COMPONENT: Architecture Comparison -->
+            <section id="architecture" class="mb-12">
+                <h2 class="text-2xl font-bold text-accent-700 mb-6">Comparação de Arquitetura</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Current Architecture -->
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-accent-600 mb-4 flex items-center">
+                            <span class="w-2 h-2 bg-red-500 rounded-full mr-3"></span>
+                            Arquitetura Atual
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-gray-50 rounded-md p-4">
+                                <div class="font-medium text-sm text-accent-600 mb-2">Express.js Server</div>
+                                <div class="text-xs text-gray-600">server/index.ts</div>
+                                <div class="text-xs text-gray-600">Rotas REST tradicionais</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-md p-4">
+                                <div class="font-medium text-sm text-accent-600 mb-2">Rotas API</div>
+                                <div class="text-xs text-gray-600">/api/surveys</div>
+                                <div class="text-xs text-gray-600">/api/health</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-md p-4">
+                                <div class="font-medium text-sm text-accent-600 mb-2">Deploy</div>
+                                <div class="text-xs text-gray-600">Servidor persistente</div>
+                                <div class="text-xs text-gray-600">Replit/VPS tradicional</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New Architecture -->
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-accent-600 mb-4 flex items-center">
+                            <span class="w-2 h-2 bg-secondary-500 rounded-full mr-3"></span>
+                            Nova Arquitetura
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-secondary-50 rounded-md p-4">
+                                <div class="font-medium text-sm text-accent-600 mb-2">Netlify Functions</div>
+                                <div class="text-xs text-gray-600">netlify/functions/</div>
+                                <div class="text-xs text-gray-600">Serverless functions</div>
+                            </div>
+                            <div class="bg-secondary-50 rounded-md p-4">
+                                <div class="font-medium text-sm text-accent-600 mb-2">API Endpoints</div>
+                                <div class="text-xs text-gray-600">/.netlify/functions/surveys</div>
+                                <div class="text-xs text-gray-600">/.netlify/functions/health</div>
+                            </div>
+                            <div class="bg-secondary-50 rounded-md p-4">
+                                <div class="font-medium text-sm text-accent-600 mb-2">Deploy</div>
+                                <div class="text-xs text-gray-600">Functions escaláveis</div>
+                                <div class="text-xs text-gray-600">Deploy automático Git</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: Architecture Comparison -->
+
+            <!-- @COMPONENT: Netlify Functions Setup -->
+            <section id="functions" class="mb-12">
+                <h2 class="text-2xl font-bold text-accent-700 mb-6">Configuração das Netlify Functions</h2>
+                
+                <div class="space-y-6">
+                    <!-- Function Example -->
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-accent-600 mb-4">Exemplo: Survey Function</h3>
+                        <div class="bg-accent-700 rounded-md p-4 mb-4">
+                            <pre class="text-sm text-gray-300 overflow-x-auto"><code>// netlify/functions/surveys.ts
+import type { Handler } from '@netlify/functions';
+import { neon } from '@neondatabase/serverless';
+import { GoogleSpreadsheet } from 'google-spreadsheet';
+
+const sql = neon(process.env.DATABASE_URL!);
+
+export const handler: Handler = async (event, context) => {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  };
+
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
+
+  try {
+    if (event.httpMethod === 'POST') {
+      const surveyData = JSON.parse(event.body || '{}');
+      
+      // Save to Neon Database
+      await sql`INSERT INTO surveys (...) VALUES (...)`;
+      
+      // Save to Google Sheets
+      const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID!);
+      await doc.useServiceAccountAuth({
+        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL!,
+        private_key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, '\n'),
+      });
+      await doc.loadInfo();
+      const sheet = doc.sheetsByIndex[0];
+      await sheet.addRow(surveyData);
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ success: true }),
+      };
+    }
+
+    return {
+      statusCode: 405,
+      headers,
+      body: JSON.stringify({ error: 'Method not allowed' }),
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'Internal server error' }),
+    };
+  }
+};</code></pre>
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <p class="mb-2"><strong>Principais mudanças:</strong></p>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>Handler function em vez de Express routes</li>
+                                <li>Gestão manual de CORS</li>
+                                <li>event.httpMethod para roteamento</li>
+                                <li>Variáveis de ambiente via process.env</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: Netlify Functions Setup -->
+
+            <!-- @COMPONENT: File Structure -->
+            <section id="structure" class="mb-12">
+                <h2 class="text-2xl font-bold text-accent-700 mb-6">Nova Estrutura de Arquivos</h2>
+                
+                <div class="bg-white rounded-lg border border-gray-200 p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Before -->
+                        <div>
+                            <h3 class="font-semibold text-accent-600 mb-4">Antes (Express.js)</h3>
+                            <div class="bg-gray-50 rounded-md p-4 font-mono text-sm">
+                                <div class="space-y-1">
+                                    <div>📁 rest-express/</div>
+                                    <div class="ml-4">📁 client/</div>
+                                    <div class="ml-8">📁 src/</div>
+                                    <div class="ml-4">📁 server/</div>
+                                    <div class="ml-8 text-red-600">📄 index.ts</div>
+                                    <div class="ml-8 text-red-600">📁 routes/</div>
+                                    <div class="ml-12 text-red-600">📄 surveys.ts</div>
+                                    <div class="ml-4">📁 shared/</div>
+                                    <div class="ml-4">📄 package.json</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- After -->
+                        <div>
+                            <h3 class="font-semibold text-accent-600 mb-4">Depois (Netlify)</h3>
+                            <div class="bg-secondary-50 rounded-md p-4 font-mono text-sm">
+                                <div class="space-y-1">
+                                    <div>📁 rest-express/</div>
+                                    <div class="ml-4">📁 client/</div>
+                                    <div class="ml-8">📁 src/</div>
+                                    <div class="ml-4 text-secondary-600">📁 netlify/</div>
+                                    <div class="ml-8 text-secondary-600">📁 functions/</div>
+                                    <div class="ml-12 text-secondary-600">📄 surveys.ts</div>
+                                    <div class="ml-12 text-secondary-600">📄 health.ts</div>
+                                    <div class="ml-4">📁 shared/</div>
+                                    <div class="ml-4 text-secondary-600">📄 netlify.toml</div>
+                                    <div class="ml-4">📄 package.json</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: File Structure -->
+
+            <!-- @COMPONENT: Environment Configuration -->
+            <section id="environment" class="mb-12">
+                <h2 class="text-2xl font-bold text-accent-700 mb-6">Configuração de Variáveis de Ambiente</h2>
+                
+                <div class="space-y-6">
+                    <!-- Netlify.toml -->
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-accent-600 mb-4">netlify.toml</h3>
+                        <div class="bg-accent-700 rounded-md p-4">
+                            <pre class="text-sm text-gray-300 overflow-x-auto"><code>[build]
+  publish = "dist"
+  command = "npm run build"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[functions]
+  node_bundler = "esbuild"</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Environment Variables -->
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-accent-600 mb-4">Variáveis no Netlify Dashboard</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Variável</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valor (Exemplo)</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descrição</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-4 py-3 text-sm font-mono text-accent-600">DATABASE_URL</td>
+                                        <td class="px-4 py-3 text-sm text-gray-600">postgresql://user:pass@host.neon.tech/db</td>
+                                        <td class="px-4 py-3 text-sm text-gray-600">Conexão Neon Database</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 text-sm font-mono text-accent-600">GOOGLE_SHEET_ID</td>
+                                        <td class="px-4 py-3 text-sm text-gray-600">1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms</td>
+                                        <td class="px-4 py-3 text-sm text-gray-600">ID da planilha Google</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 text-sm font-mono text-accent-600">GOOGLE_SERVICE_ACCOUNT_EMAIL</td>
+                                        <td class="px-4 py-3 text-sm text-gray-600">service@project.iam.gserviceaccount.com</td>
+                                        <td class="px-4 py-3 text-sm text-gray-600">Email da service account</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 text-sm font-mono text-accent-600">GOOGLE_PRIVATE_KEY</td>
+                                        <td class="px-4 py-3 text-sm text-gray-600">-----BEGIN PRIVATE KEY-----\n...</td>
+                                        <td class="px-4 py-3 text-sm text-gray-600">Chave privada da service account</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: Environment Configuration -->
+
+            <!-- @COMPONENT: Build & Deploy -->
+            <section id="build" class="mb-12">
+                <h2 class="text-2xl font-bold text-accent-700 mb-6">Build & Deploy</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Package.json Updates -->
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-accent-600 mb-4">Scripts Atualizados</h3>
+                        <div class="bg-accent-700 rounded-md p-4">
+                            <pre class="text-sm text-gray-300 overflow-x-auto"><code>{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:functions": "netlify-cli build",
+    "serve": "netlify dev",
+    "deploy": "netlify deploy --prod"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^2.4.0",
+    "netlify-cli": "^17.10.1"
+  }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Deploy Steps -->
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-accent-600 mb-4">Passos de Deploy</h3>
+                        <ol class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 w-6 h-6 bg-primary-500 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">1</span>
+                                <div>
+                                    <div class="font-medium text-sm">Conectar repositório</div>
+                                    <div class="text-xs text-gray-600">GitHub/GitLab → Netlify</div>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 w-6 h-6 bg-primary-500 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">2</span>
+                                <div>
+                                    <div class="font-medium text-sm">Configurar build</div>
+                                    <div class="text-xs text-gray-600">Comando: npm run build</div>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 w-6 h-6 bg-primary-500 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">3</span>
+                                <div>
+                                    <div class="font-medium text-sm">Environment variables</div>
+                                    <div class="text-xs text-gray-600">Site settings → Environment variables</div>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 w-6 h-6 bg-secondary-500 text-white rounded-full flex items-center justify-center text-xs font-medium mr-3 mt-0.5">4</span>
+                                <div>
+                                    <div class="font-medium text-sm">Deploy automático</div>
+                                    <div class="text-xs text-gray-600">Git push → Auto deploy</div>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: Build & Deploy -->
+
+            <!-- @COMPONENT: Testing Checklist -->
+            <section id="testing" class="mb-12">
+                <h2 class="text-2xl font-bold text-accent-700 mb-6">Checklist de Migração</h2>
+                
+                <div class="bg-white rounded-lg border border-gray-200 p-6">
+                    <div class="space-y-4">
+                        <!-- @STATE: checklist items with completion status -->
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" data-implementation="Track completion status">
+                                <span class="text-sm text-gray-700">Converter rotas Express para Netlify Functions</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                <span class="text-sm text-gray-700">Configurar netlify.toml</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                <span class="text-sm text-gray-700">Migrar variáveis de ambiente</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                <span class="text-sm text-gray-700">Testar integração Google Sheets API</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                <span class="text-sm text-gray-700">Verificar conexão Neon Database</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                <span class="text-sm text-gray-700">Atualizar URLs de API no frontend</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                <span class="text-sm text-gray-700">Configurar CORS para domínio de produção</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                <span class="text-sm text-gray-700">Testar formulário de pesquisa end-to-end</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                <span class="text-sm text-gray-700">Configurar domínio personalizado (opcional)</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" class="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                <span class="text-sm text-gray-700">Documentar novas URLs de produção</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 p-4 bg-secondary-50 rounded-md">
+                            <h4 class="font-medium text-secondary-700 mb-2">Próximos Passos</h4>
+                            <p class="text-sm text-secondary-600">
+                                Após completar todos os itens do checklist, a aplicação estará totalmente migrada para 
+                                Netlify Functions. O formulário de pesquisa da Academia RM funcionará de forma idêntica, 
+                                mas agora com a escalabilidade e confiabilidade da arquitetura serverless.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: Testing Checklist -->
+
+            <!-- @COMPONENT: Additional Resources -->
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold text-accent-700 mb-6">Recursos Adicionais</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                        <h3 class="font-semibold text-accent-600 mb-2">Netlify Functions Docs</h3>
+                        <p class="text-sm text-gray-600 mb-3">Documentação oficial das Netlify Functions</p>
+                        <a href="#" class="text-primary-500 text-sm font-medium hover:text-primary-600">Ver documentação →</a>
+                    </div>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                        <h3 class="font-semibold text-accent-600 mb-2">Neon Database</h3>
+                        <p class="text-sm text-gray-600 mb-3">Configuração e melhores práticas</p>
+                        <a href="#" class="text-primary-500 text-sm font-medium hover:text-primary-600">Acessar guias →</a>
+                    </div>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                        <h3 class="font-semibold text-accent-600 mb-2">Google Sheets API</h3>
+                        <p class="text-sm text-gray-600 mb-3">Autenticação e service accounts</p>
+                        <a href="#" class="text-primary-500 text-sm font-medium hover:text-primary-600">Ver exemplos →</a>
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: Additional Resources -->
+        </main>
+        <!-- @END_COMPONENT: Main Content -->
+    </div>
+
+    <!-- @COMPONENT: Footer -->
+    <footer class="bg-white border-t border-gray-200 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-600">
+                    © 2024 Academia RM - Guia de Migração para Netlify
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">Status:</span>
+                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
+                        Em Progresso
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+    <script>
+        // TODO: Implement interactive checklist functionality
+        // TODO: Add progress tracking for migration steps
+        // TODO: Implement smooth scrolling navigation
+        
+        (function() {
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Update navigation active state on scroll
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('nav a[href^="#"]');
+
+            function updateActiveNav() {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (window.scrollY >= sectionTop - 200) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('text-primary-600', 'bg-primary-50', 'font-medium');
+                    link.classList.add('text-gray-600');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.remove('text-gray-600');
+                        link.classList.add('text-primary-600', 'bg-primary-50', 'font-medium');
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', updateActiveNav);
+        })();
+    </script>
+</body>
+</html>
