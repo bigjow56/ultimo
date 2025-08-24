@@ -116,8 +116,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('GOOGLE_SHEET_ID presente:', !!process.env.GOOGLE_SHEET_ID);
         console.log('GOOGLE_SERVICE_ACCOUNT_EMAIL presente:', !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
         console.log('GOOGLE_PRIVATE_KEY presente:', !!process.env.GOOGLE_PRIVATE_KEY);
-        console.log('credentials.json existe:', require('fs').existsSync(require('path').join(process.cwd(), 'credentials.json')));
-        console.log('enableGoogleSheets:', enableGoogleSheets);
       }
       
       res.json({ 
